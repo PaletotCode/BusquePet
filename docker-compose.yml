@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: busquepet-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: busquepet-nats
+    command: ["-js", "-sd", "/data"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats-data:/data
+
+  python-webhook:
+    build:
+      context: .
+      dockerfile: deployments/python-webhook/Dockerfile
+    container_name: busquepet-python
+    environment:
+      BUSQUEPET_MODEL_PATH: /workspace/models/contrastive/best_model.pt
+      BUSQUEPET_FAISS_INDEX: /workspace/models/faiss_index
+      BUSQUEPET_METADATA_PATH: /workspace/data/embeddings/embedding_metadata.csv
+      BUSQUEPET_WEBHOOK_HOST: 0.0.0.0
+      BUSQUEPET_WEBHOOK_PORT: "8001"
+    volumes:
+      - ./models:/workspace/models:ro
+      - ./data:/workspace/data:ro
+      - ./shared-storage:/workspace/shared
+    ports:
+      - "8001:8001"
+
+  busquepet-api:
+    build:
+      context: busquepet-go
+      dockerfile: Dockerfile
+    container_name: busquepet-api
+    depends_on:
+      - redis
+      - nats
+      - python-webhook
+    environment:
+      BUSQUEPET_PORT: "8080"
+      BUSQUEPET_STORAGE_DIR: /workspace/shared
+      BUSQUEPET_REDIS_URL: redis://redis:6379/0
+      BUSQUEPET_NATS_URL: nats://nats:4222
+      BUSQUEPET_PYTHON_WEBHOOK_URL: http://python-webhook:8001/v1/match
+      BUSQUEPET_MAX_IMAGE_MB: "12"
+    volumes:
+      - ./shared-storage:/workspace/shared
+    ports:
+      - "8080:8080"
+
+volumes:
+  redis-data:
+  nats-data:

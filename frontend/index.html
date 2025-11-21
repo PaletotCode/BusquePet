@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BusquePet Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>BusquePet Console</h1>
+      <p>MVP: envie uma imagem à esquerda e veja o match + raça + foto correspondente à direita.</p>
+    </div>
+    <div class="status-card">
+      <span>WebSocket:</span>
+      <strong id="ws-status">desconectado</strong>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card sticky">
+      <h2>Conexão e Upload</h2>
+      <div class="form-grid">
+        <label>
+          API base (HTTP)
+          <input id="api-base" type="text" placeholder="http://localhost:8080" value="http://localhost:8080">
+        </label>
+        <label>
+          WebSocket URL
+          <input id="ws-url" type="text" placeholder="ws://localhost:8080/v1/ws" value="ws://localhost:8080/v1/ws">
+        </label>
+      </div>
+      <div class="actions">
+        <button id="connect-ws">Conectar WebSocket</button>
+        <button id="disconnect-ws" class="secondary">Desconectar</button>
+      </div>
+
+      <div class="upload-box" id="drop-area">
+        <div class="upload-text">
+          <p>Arraste a imagem aqui ou clique para selecionar.</p>
+          <small>JPEG/PNG até 12 MB</small>
+        </div>
+        <input id="file-input" type="file" accept="image/*" hidden>
+        <button id="browse-btn">Escolher arquivo</button>
+        <div class="preview" id="preview"></div>
+        <div id="file-info" class="muted"></div>
+      </div>
+      <div class="actions">
+        <button id="upload-btn" disabled>Enviar para IA</button>
+        <button id="reset-btn" class="secondary">Limpar</button>
+      </div>
+      <div id="upload-status" class="muted"></div>
+      <div class="small-grid">
+        <label>
+          Job ID
+          <input id="job-id" type="text" readonly placeholder="Ainda não enviado">
+        </label>
+        <label>
+          Latência (ms)
+          <input id="latency" type="text" readonly>
+        </label>
+        <button id="refresh-job" class="secondary full">Consultar via REST</button>
+      </div>
+      <div class="log-container" id="status-feed"></div>
+    </section>
+
+    <section class="card results-pane">
+      <div class="results-header">
+        <h2>Resultado do Matching</h2>
+        <span id="result-summary" class="muted">Aguarde o upload.</span>
+      </div>
+      <div id="results-grid" class="results-grid">
+        <div class="placeholder">Sem matches ainda.</div>
+      </div>
+      <div class="log-container" id="log-output"></div>
+    </section>
+  </main>
+
+  <script src="app.js" type="module"></script>
+</body>
+
+</html>

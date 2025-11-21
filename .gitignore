@@ -1,0 +1,24 @@
+# Virtual environments
+.venv/
+venv/
+
+# Data, models, artifacts
+data/
+models/
+outputs/
+shared-storage/
+.hf-cache/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*.ckpt
+*.pt
+*.bin
+*.onnx
+*.h5
+*.tfevents.*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
